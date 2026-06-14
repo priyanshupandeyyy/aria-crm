@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-app.use(cors({ origin: '*' }));
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173'];
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)

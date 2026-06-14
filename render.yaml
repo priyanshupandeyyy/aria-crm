@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: aria-crm-service
+    env: node
+    rootDir: packages/crm-service
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CHANNEL_SERVICE_URL
+        sync: false
+      - key: CHANNEL_CALLBACK_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: aria-channel-service
+    env: node
+    rootDir: packages/channel-service
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: CRM_CALLBACK_URL
+        sync: false

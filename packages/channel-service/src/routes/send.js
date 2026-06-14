@@ -26,7 +26,8 @@ router.post('/', (req, res) => {
 
     // Fire and forget simulator delivery process
     setImmediate(() => {
-      simulateDelivery(msg_id, recipient, channel, message, callback_url);
+      const finalCallbackUrl = process.env.CRM_CALLBACK_URL || callback_url;
+      simulateDelivery(msg_id, recipient, channel, message, finalCallbackUrl);
     });
   } catch (error) {
     console.error('Error in /api/send route handler:', error);
