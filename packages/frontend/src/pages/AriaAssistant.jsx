@@ -90,11 +90,10 @@ function formatCurrency(n) {
 const S = {
   page: {
     position: 'relative',
-    height: 'calc(100vh)',
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: COLORS.pageBg,
-    margin: -32, // counteract Layout padding
     padding: 0,
     overflow: 'hidden',
   },

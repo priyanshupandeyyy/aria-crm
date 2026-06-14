@@ -287,7 +287,7 @@ export default function Campaigns() {
                 description="Create a segment first to target your audience."
               />
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {segments.map((seg) => {
                   const id = seg._id || seg.id;
                   const selected = form.segment_id === id;
@@ -331,7 +331,7 @@ export default function Campaigns() {
             {/* Channel selector */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Channel</label>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {CHANNELS.map((ch) => {
                   const selected = form.channel === ch.value;
                   return (
@@ -389,7 +389,7 @@ export default function Campaigns() {
 
             {/* Variant cards */}
             {messageVariants.length > 0 && (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                 {messageVariants.slice(0, 3).map((v, i) => (
                   <div
                     key={i}

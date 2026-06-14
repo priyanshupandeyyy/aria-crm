@@ -281,7 +281,7 @@ export default function Segments() {
           onAction={() => setDrawerOpen(true)}
         />
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {segments.map((seg) => (
             <div
               key={seg._id || seg.id}
@@ -437,7 +437,7 @@ export default function Segments() {
                             key={rule.id}
                             className="flex items-start gap-2 p-3 rounded-lg bg-gray-50 border border-gray-100"
                           >
-                            <div className="flex-1 grid grid-cols-3 gap-2">
+                            <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
                               {/* field */}
                               <select
                                 value={rule.field}

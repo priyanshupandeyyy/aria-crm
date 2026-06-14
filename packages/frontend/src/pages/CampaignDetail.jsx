@@ -219,7 +219,7 @@ export default function CampaignDetail() {
       </div>
 
       {/* ── Stats row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard title="Total" value={total.toLocaleString()} icon={Users} color="#6F4E37" />
         <StatCard
           title="Sent"
@@ -250,7 +250,7 @@ export default function CampaignDetail() {
       </div>
 
       {/* ── Two-column: donut + insight ─────────────────────── */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left Column: Donut chart + Live feed */}
         <div className="flex flex-col gap-4">
           {/* Donut chart */}

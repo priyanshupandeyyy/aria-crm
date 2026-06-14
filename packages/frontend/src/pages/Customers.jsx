@@ -72,7 +72,7 @@ function CustomerModal({ customerId, onClose }) {
       />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-[100] flex flex-col animate-[slideIn_0.2s_ease-out]">
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-xl z-[100] flex flex-col animate-[slideIn_0.2s_ease-out]">
         {/* Close */}
         <button
           onClick={onClose}
