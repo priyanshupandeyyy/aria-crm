@@ -2,6 +2,12 @@
 
 Aria CRM is a next-generation Customer Relationship Management platform supercharged by artificial intelligence. Built with modern web technologies, it features an intuitive dashboard, AI-assisted campaign drafting, intelligent customer segmentation, and multi-channel message delivery simulation.
 
+## 🌐 Live Demo
+
+- **Frontend Application**: [https://aria-crm-frontend.vercel.app/](https://aria-crm-frontend.vercel.app/)
+- **CRM API Service**: [https://aria-crm-service.onrender.com/api/health](https://aria-crm-service.onrender.com/api/health)
+- **Channel Delivery Simulator**: [https://aria-channel-service.onrender.com/health](https://aria-channel-service.onrender.com/health)
+
 ## ✨ Features
 
 - **AI-Powered Assistant**: Leverage Google Gemini and Groq integrations to auto-draft campaign messages, analyze customer data, and generate natural language segment queries.
