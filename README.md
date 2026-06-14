@@ -4,7 +4,7 @@
 An AI-native CRM for a coffee brand that helps marketing managers 
 decide who to talk to, what to say, and how to reach them.
 
-The product is built around ARIA — an AI campaign assistant that takes 
+The product is built around ARIA (Audience Retention & Intelligence Assistant) — an AI campaign assistant that takes 
 a plain-English goal ("re-engage customers who haven't ordered in 45 days") 
 and returns a complete campaign plan: audience, channel recommendation 
 based on real delivery data, and 3 message variants — then launches it.
