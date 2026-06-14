@@ -221,7 +221,14 @@ router.post('/:id/launch', async (req, res) => {
       });
 
       // 8. Fire the channel service calls with Promise.allSettled()
-      await Promise.allSettled(channelServiceCalls);
+      const results = await Promise.allSettled(channelServiceCalls);
+      
+      // Log any failures so they show up in Render logs
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`Failed to send message to channel service for comm ${savedCommunications[index]._id}:`, result.reason?.message || result.reason);
+        }
+      });
     }
 
     // 9. Update campaign status to "active"

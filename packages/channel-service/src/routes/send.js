@@ -11,10 +11,12 @@ router.post('/', (req, res) => {
   try {
     const { msg_id, recipient, channel, message, callback_url } = req.body;
 
-    // Validate all 5 fields are present
-    if (!msg_id || !recipient || !channel || !message || !callback_url) {
+    const finalCallbackUrl = process.env.CRM_CALLBACK_URL || callback_url;
+
+    // Validate fields
+    if (!msg_id || !recipient || !channel || !message || !finalCallbackUrl) {
       return res.status(400).json({
-        error: 'Missing required fields. All of msg_id, recipient, channel, message, and callback_url must be provided.'
+        error: 'Missing required fields. All of msg_id, recipient, channel, message, and a callback URL must be provided or configured.'
       });
     }
 
@@ -26,7 +28,6 @@ router.post('/', (req, res) => {
 
     // Fire and forget simulator delivery process
     setImmediate(() => {
-      const finalCallbackUrl = process.env.CRM_CALLBACK_URL || callback_url;
       simulateDelivery(msg_id, recipient, channel, message, finalCallbackUrl);
     });
   } catch (error) {
