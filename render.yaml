@@ -1,6 +1,7 @@
 services:
   - type: web
     name: aria-crm-service
+    plan: free
     env: node
     rootDir: packages/crm-service
     buildCommand: npm install
@@ -19,6 +20,7 @@ services:
 
   - type: web
     name: aria-channel-service
+    plan: free
     env: node
     rootDir: packages/channel-service
     buildCommand: npm install
