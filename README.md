@@ -1,103 +1,168 @@
-# Aria CRM
+# Aria CRM — AI-Native Campaign Intelligence for Brew & Co.
 
-Aria CRM is a next-generation Customer Relationship Management platform supercharged by artificial intelligence. Built with modern web technologies, it features an intuitive dashboard, AI-assisted campaign drafting, intelligent customer segmentation, and multi-channel message delivery simulation.
+## What I Built
+An AI-native CRM for a coffee brand that helps marketing managers 
+decide who to talk to, what to say, and how to reach them.
 
-## 🌐 Live Demo
+The product is built around ARIA — an AI campaign assistant that takes 
+a plain-English goal ("re-engage customers who haven't ordered in 45 days") 
+and returns a complete campaign plan: audience, channel recommendation 
+based on real delivery data, and 3 message variants — then launches it.
 
-- **Frontend Application**: [https://aria-crm-frontend.vercel.app/](https://aria-crm-frontend.vercel.app/)
-- **CRM API Service**: [https://aria-crm-service.onrender.com/api/health](https://aria-crm-service.onrender.com/api/health)
-- **Channel Delivery Simulator**: [https://aria-channel-service.onrender.com/health](https://aria-channel-service.onrender.com/health)
+## Live Demo
+Frontend: [https://aria-crm-frontend.vercel.app](https://aria-crm-frontend.vercel.app)
+(Backend on Render free tier — first load may take 30s)
 
-## ✨ Features
+## Architecture
 
-- **AI-Powered Assistant**: Leverage Google Gemini and Groq integrations to auto-draft campaign messages, analyze customer data, and generate natural language segment queries.
-- **Dynamic Customer Segmentation**: Create and manage highly specific customer segments using advanced filtering rules.
-- **Campaign Management**: End-to-end campaign workflow—from drafting and reviewing content to launching and tracking delivery across multiple channels (Email, SMS, Push).
-- **Interactive Analytics**: View real-time campaign performance and customer engagement through beautiful, interactive charts.
-- **Modern User Interface**: A sleek, responsive dashboard built with React and Tailwind CSS.
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                        BROWSER (React)                          │
+│  Dashboard | Customers | Segments | Campaigns | AI Assistant    │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ REST API calls (Vite Proxy / Vercel)
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    CRM SERVICE (Node/Express)                   │
+│   Deployed on Render: aria-crm-service                          │
+│                                                                 │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐    │
+│  │  /customers │  │  /segments   │  │     /campaigns       │    │
+│  │  /orders    │  │  /aria       │  │   send / status      │    │
+│  └─────────────┘  └──────────────┘  └──────────────────────┘    │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              /receipts  (callback endpoint)              │   │
+│  │  Receives delivery events from Channel Service           │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  ┌─────────────────────────┐  ┌───────────────────────────┐     │
+│  │ Gemini API & Groq API   │  │       MongoDB Atlas       │     │
+│  │ (LLM inference & rules) │  │     (all collections)     │     │
+│  └─────────────────────────┘  └───────────────────────────┘     │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ POST /api/send (campaign dispatch)
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  CHANNEL SERVICE (Node/Express)                 │
+│   Deployed on Render: aria-channel-service                      │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  POST /api/send                                         │    │
+│  │  - Receives: {msg_id, recipient, channel, message,      │    │
+│  │               callback_url}                             │    │
+│  │  - Immediately returns 202 Accepted                     │    │
+│  │  - Queues async simulation job via setImmediate()       │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Simulation Engine (deliveryEngine.js)                  │    │
+│  │  - Initial processing delay: 1-3 seconds                │    │
+│  │  - 85% Delivered, 15% Failed                            │    │
+│  │  - Of Delivered: 35% Opened (after 3-8s delay)          │    │
+│  │  - Of Opened: 28% Clicked (after 2-6s delay)            │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Retry Mechanism (Custom Recursive Function)            │    │
+│  │  - On callback failure: exponential backoff (2s * n)    │    │
+│  │  - Max 3 retries, then logs to console (Dead-letter)    │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ POST /api/receipts (callbacks)
+                       └──────────────────────────▶ CRM Service
+```
 
-## 🏗️ Architecture
+## Key Design Decisions
 
-Aria CRM is structured as a monorepo containing three core packages:
+**Two-service architecture**
+The CRM and Channel Service are separate because real channel providers 
+(Twilio, Gupshup) are external. Separating concerns means the CRM only 
+knows what happened to messages, not how they were delivered.
 
-1. **`frontend`** (React + Vite + Tailwind CSS): The user-facing dashboard providing rich, interactive experiences.
-2. **`crm-service`** (Node.js + Express + MongoDB): The core backend service handling business logic, data persistence, and AI API integrations.
-3. **`channel-service`** (Node.js + Express): A simulated delivery engine representing external communication channels (e.g., SendGrid, Twilio) to track campaign dispatch and simulate real-world message delivery.
+**Async callback pattern**
+Delivery is inherently async. The channel service returns 202 immediately 
+and calls back into `/api/receipts` as statuses change. This prevents 
+blocking HTTP connections and scales to high volume.
 
-## 🚀 Getting Started
+**Denormalized customer stats**
+`total_spend`, `total_orders`, `last_order_date` are stored on the customer 
+document (not computed from orders) for fast segment queries. Tradeoff: 
+write complexity. Acceptable because segment reads vastly outnumber 
+order writes.
+
+**In-memory retry queue**
+Channel service retries failed callbacks up to 3x with exponential backoff. 
+Production would use Redis + BullMQ for persistence across restarts.
+
+**Polling over SSE**
+Campaign stats poll every 5 seconds. SSE would be more real-time but 
+adds connection management complexity. Explicit tradeoff for this scope.
+
+## AI Features
+- ARIA Assistant: intent classification → segment building → 
+  channel recommendation → message generation in one request
+- Natural language segment generation
+- AI message drafting (3 variants with tone labels)
+- Post-campaign AI analysis
+- AI-powered dashboard recommendations
+
+## Stack
+- Frontend: React + Vite + Tailwind + Recharts
+- CRM Service: Node.js + Express + MongoDB + Groq (llama-3.3-70b)
+- Channel Service: Node.js + Express (stubbed delivery simulation)
+- Database: MongoDB Atlas
+- Deployed: Vercel (frontend) + Render (services)
+
+## Running Locally
 
 ### Prerequisites
+- Node.js (v18+)
+- MongoDB (Local or Atlas)
+- Google Gemini API Key & Groq API Key
 
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
-- [MongoDB](https://www.mongodb.com/) (Local instance or Atlas cluster)
-- API Keys for AI features (Google Gemini API, Groq API)
+### Installation & Setup
 
-### Installation
-
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/priyanshupandeyyy/aria-crm.git
    cd aria-crm
    ```
 
-2. Install dependencies for the root and all workspaces:
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-### Environment Configuration
+3. **Configure Environment Variables:**
+   Create a `.env` file in `packages/crm-service/`:
+   ```env
+   PORT=3001
+   MONGODB_URI=mongodb://127.0.0.1:27017/aria-crm
+   GEMINI_API_KEY=your_gemini_key
+   GROQ_API_KEY=your_groq_key
+   CHANNEL_SERVICE_URL=http://localhost:3002
+   CHANNEL_CALLBACK_URL=http://localhost:3001/api/receipts
+   ALLOWED_ORIGINS=http://localhost:5173
+   ```
+   
+   Create a `.env` file in `packages/channel-service/`:
+   ```env
+   PORT=3002
+   CRM_CALLBACK_URL=http://localhost:3001/api/receipts
+   ```
 
-You will need to set up environment variables for the backend services.
+4. **Seed the Database:**
+   ```bash
+   npm run seed --workspace=packages/crm-service
+   ```
 
-Create a `.env` file in `packages/crm-service/`:
-```env
-PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/aria-crm
-GEMINI_API_KEY=your_gemini_api_key_here
-GROQ_API_KEY=your_groq_api_key_here
-CHANNEL_SERVICE_URL=http://localhost:5001
-```
-
-Create a `.env` file in `packages/channel-service/`:
-```env
-PORT=5001
-```
-
-### Seeding the Database
-
-To test the application with sample data, run the seed script:
-```bash
-npm run seed --workspace=packages/crm-service
-```
-
-### Running the Application
-
-You can start each service individually using the root package scripts. Open three separate terminal windows and run:
-
-**Terminal 1: Start CRM Service**
-```bash
-npm run crm
-```
-
-**Terminal 2: Start Channel Service**
-```bash
-npm run channel
-```
-
-**Terminal 3: Start Frontend**
-```bash
-npm run frontend
-```
-
-The frontend will be available at `http://localhost:5173`.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React 19, Vite, Tailwind CSS, Recharts, Lucide Icons
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB, Mongoose
-- **AI Integrations**: Google Generative AI SDK, Groq SDK
-
-## 📝 License
-
-This project is licensed under the MIT License.
+5. **Start the Application:**
+   Open three terminal windows and start the services:
+   ```bash
+   npm run crm      # Terminal 1
+   npm run channel  # Terminal 2
+   npm run frontend # Terminal 3
+   ```
+   
+   The app will be available at `http://localhost:5173`.
