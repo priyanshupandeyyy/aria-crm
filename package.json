@@ -1,0 +1,12 @@
+{
+  "name": "aria-crm",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "crm": "npm run dev --workspace=packages/crm-service",
+    "channel": "npm run dev --workspace=packages/channel-service",
+    "frontend": "npm run dev --workspace=packages/frontend"
+  }
+}

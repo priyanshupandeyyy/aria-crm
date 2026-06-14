@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #6F4E37;   /* coffee brown */
+  --brand-accent: #D4A853;    /* golden */
+  --brand-light: #FDF6EC;     /* cream */
+}
