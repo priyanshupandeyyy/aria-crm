@@ -16,9 +16,7 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
   });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'crm-service' });
-});
+app.get('/health', (req, res) => res.json({ status: 'ok', db: 'connected' }))
 
 // Empty routers for now
 app.use('/api/customers', require('./routes/customers'));

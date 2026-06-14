@@ -8,13 +8,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// GET /health -> { status: "ok", service: "channel-service" }
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'channel-service'
-  });
-});
+app.get('/', (req, res) => res.json({ service: 'Aria Channel Service', status: 'running' }))
+app.get('/health', (req, res) => res.json({ status: 'ok' }))
 
 // Mount /api/send -> send router
 app.use('/api/send', sendRouter);
