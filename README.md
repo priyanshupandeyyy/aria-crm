@@ -11,7 +11,7 @@ based on real delivery data, and 3 message variants — then launches it.
 
 ## Live Demo
 Frontend: [https://aria-crm-frontend.vercel.app](https://aria-crm-frontend.vercel.app)
-(Backend on Render free tier — first load may take 30s)
+(Backend on Render free tier — kept awake via cron jobs, so it opens without delay)
 
 ## Architecture
 
@@ -37,7 +37,7 @@ Frontend: [https://aria-crm-frontend.vercel.app](https://aria-crm-frontend.verce
 │  └──────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │  ┌─────────────────────────┐  ┌───────────────────────────┐     │
-│  │ Gemini API & Groq API   │  │       MongoDB Atlas       │     │
+│  │        Groq API         │  │       MongoDB Atlas       │     │
 │  │ (LLM inference & rules) │  │     (all collections)     │     │
 │  └─────────────────────────┘  └───────────────────────────┘     │
 └──────────────────────┬──────────────────────────────────────────┘
@@ -119,7 +119,7 @@ adds connection management complexity. Explicit tradeoff for this scope.
 ### Prerequisites
 - Node.js (v18+)
 - MongoDB (Local or Atlas)
-- Google Gemini API Key & Groq API Key
+- Groq API Key
 
 ### Installation & Setup
 
@@ -139,7 +139,6 @@ adds connection management complexity. Explicit tradeoff for this scope.
    ```env
    PORT=3001
    MONGODB_URI=mongodb://127.0.0.1:27017/aria-crm
-   GEMINI_API_KEY=your_gemini_key
    GROQ_API_KEY=your_groq_key
    CHANNEL_SERVICE_URL=http://localhost:3002
    CHANNEL_CALLBACK_URL=http://localhost:3001/api/receipts
