@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Segment = require('../models/Segment');
 const Customer = require('../models/Customer');
 const segmentEngine = require('../services/segmentEngine');
-const { generateSegmentRules } = require('../services/gemini');
+const { generateSegmentRules } = require('../services/groq');
 
 // GET /api/segments
 // Return all segments sorted by created_at desc

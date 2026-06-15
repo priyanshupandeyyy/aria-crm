@@ -5,7 +5,7 @@ const Customer = require('../models/Customer');
 const Segment = require('../models/Segment');
 const Campaign = require('../models/Campaign');
 const Communication = require('../models/Communication');
-const { generateMessageVariants } = require('../services/gemini');
+const { generateMessageVariants } = require('../services/groq');
 const { buildMongoQuery } = require('../services/segmentEngine');
 
 const router = express.Router();

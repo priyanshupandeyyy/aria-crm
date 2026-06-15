@@ -8,7 +8,7 @@ const Segment = require('../models/Segment');
 const Communication = require('../models/Communication');
 const Customer = require('../models/Customer');
 const segmentEngine = require('../services/segmentEngine');
-const { generateMessageVariants, analyzeCampaign } = require('../services/gemini');
+const { generateMessageVariants, analyzeCampaign } = require('../services/groq');
 
 // GET /api/campaigns
 // Return all campaigns sorted by created_at desc
