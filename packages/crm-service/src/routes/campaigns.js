@@ -206,29 +206,44 @@ router.post('/:id/launch', async (req, res) => {
       savedCommunications = await Communication.insertMany(communicationsData);
 
       // 7. Prepare channel service calls
+      const CHANNEL_SERVICE_URL = process.env.CHANNEL_SERVICE_URL || 'https://aria-channel-service.onrender.com';
+      const CHANNEL_CALLBACK_URL = process.env.CHANNEL_CALLBACK_URL || 'https://aria-crm-service.onrender.com/api/receipts';
       const customerMap = new Map(customers.map(c => [c._id.toString(), c]));
       const channelServiceCalls = savedCommunications.map(comm => {
         const customer = customerMap.get(comm.customer_id.toString());
-        const recipientPhone = customer ? customer.phone : '';
+        const recipient = customer ? (customer.phone || customer.email) : '';
 
-        return axios.post(`${process.env.CHANNEL_SERVICE_URL}/api/send`, {
+        return axios.post(`${CHANNEL_SERVICE_URL}/api/send`, {
           msg_id: comm._id.toString(),
-          recipient: recipientPhone,
+          recipient,
           channel: campaign.channel,
           message: comm.message,
-          callback_url: process.env.CHANNEL_CALLBACK_URL
+          callback_url: CHANNEL_CALLBACK_URL
         });
       });
 
       // 8. Fire the channel service calls with Promise.allSettled()
       const results = await Promise.allSettled(channelServiceCalls);
       
-      // Log any failures so they show up in Render logs
+      const sentIds = [];
       results.forEach((result, index) => {
-        if (result.status === 'rejected') {
+        if (result.status === 'fulfilled') {
+          sentIds.push(savedCommunications[index]._id);
+        } else {
           console.error(`Failed to send message to channel service for comm ${savedCommunications[index]._id}:`, result.reason?.message || result.reason);
         }
       });
+
+      if (sentIds.length > 0) {
+        await Communication.updateMany(
+          { _id: { $in: sentIds } },
+          {
+            $set: { status: 'sent' },
+            $push: { status_history: { status: 'sent', timestamp: new Date() } }
+          }
+        );
+        campaign.stats.sent = sentIds.length;
+      }
     }
 
     // 9. Update campaign status to "active"

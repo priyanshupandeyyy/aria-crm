@@ -14,9 +14,9 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: CHANNEL_SERVICE_URL
-        sync: false
+        value: https://aria-channel-service.onrender.com
       - key: CHANNEL_CALLBACK_URL
-        sync: false
+        value: https://aria-crm-service.onrender.com/api/receipts
       - key: ALLOWED_ORIGINS
         sync: false
 
@@ -29,4 +29,4 @@ services:
     startCommand: node src/app.js
     envVars:
       - key: CRM_CALLBACK_URL
-        sync: false
+        value: https://aria-crm-service.onrender.com/api/receipts

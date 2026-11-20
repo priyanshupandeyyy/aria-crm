@@ -318,9 +318,9 @@ router.post('/launch', async (req, res) => {
         );
 
         const CHANNEL_SERVICE_URL =
-          process.env.CHANNEL_SERVICE_URL || 'http://localhost:3002';
+          process.env.CHANNEL_SERVICE_URL || 'https://aria-channel-service.onrender.com';
         const CALLBACK_URL =
-          process.env.CHANNEL_CALLBACK_URL || 'http://localhost:3001/api/receipts';
+          process.env.CHANNEL_CALLBACK_URL || 'https://aria-crm-service.onrender.com/api/receipts';
         const axios = require('axios');
 
         const batchSize = 50;

@@ -11,7 +11,7 @@ router.post('/', (req, res) => {
   try {
     const { msg_id, recipient, channel, message, callback_url } = req.body;
 
-    const finalCallbackUrl = process.env.CRM_CALLBACK_URL || callback_url;
+    const finalCallbackUrl = process.env.CRM_CALLBACK_URL || callback_url || 'https://aria-crm-service.onrender.com/api/receipts';
 
     // Validate fields
     if (!msg_id || !recipient || !channel || !message || !finalCallbackUrl) {
